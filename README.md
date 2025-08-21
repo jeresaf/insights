@@ -1,48 +1,25 @@
-# javarosa-js (MVP scaffold)
+# javarosa-js (MVP)
 
-This is a **pnpm workspace** with the initial scaffold for a JavaRosa-like runtime in TypeScript.
-
-## Quickstart
-
-```bash
-pnpm i
-pnpm build
-```
+A tiny, fast subset of JavaRosa for JS/TS: XPath evaluation + form model + incremental recalc with repeats.
 
 ## Packages
+- `@javarosa-js/core` — form model, instance tree, scheduler, session API
+- `@javarosa-js/xpath` — minimal XPath evaluator focused on XForms functions
 
-- `@javarosa-js/utils` – XML helpers (xmldom)
-- `@javarosa-js/xforms` – Minimal XForm parser (model, instance, itext, binds)
-- `@javarosa-js/xpath` – Tiny XPath subset evaluator sufficient for smoke tests
-- `@javarosa-js/core` – Public API: `loadXForm`, `createFormSession`
-
-## Smoke usage
+## Quick start
 
 ```ts
 import { loadXForm, createFormSession } from '@javarosa-js/core';
 
-const xform = `
-<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml" xmlns:jr="http://openrosa.org/javarosa">
-  <h:head>
-    <model>
-      <instance>
-        <data id="demo">
-          <age/>
-          <eligible/>
-        </data>
-      </instance>
-      <bind nodeset="/data/age" type="int" />
-      <bind nodeset="/data/eligible" type="string" relevant="/data/age >= 18" />
-    </model>
-  </h:head>
-  <h:body/>
-</h:html>`;
+const xml = `<h:html xmlns="http://www.w3.org/2002/xforms" ...>...</h:html>`;
+const model = loadXForm(xml);
+const s = createFormSession(model);
 
-const model = loadXForm(xform);
-const session = createFormSession(model);
-session.setValue('/data/age', 21);
-console.log(session.evaluate('/data/age >= 18')); // true
-console.log(session.serialize());
-```
+s.setValue('/data/a', 5);
+console.log(s.evaluate('/data/b')); // e.g. 6
+console.log(s.isValid('/data/someField')); // boolean
 
-> Note: This is an MVP scaffold. Recalc graph, full binds, and complete XPath will be built incrementally.
+// repeats
+const row2 = s.addRepeat('/data/child');          // => '/data/child[2]'
+s.setValue(`${row2}/age`, 10);
+s.deleteRepeat('/data/child', 1);
