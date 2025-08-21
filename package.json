@@ -9,6 +9,7 @@
     "test": "pnpm -r --filter \"./packages/*\" run test || echo \"tests pending\""
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.6",
     "tsup": "^8.1.0",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
